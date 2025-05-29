@@ -1,29 +1,32 @@
 import cv2
-import numpy as np
+import mediapipe as mp
 
-# Start Webcam
-cap = cv2.VideoCapture(0)
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)  # enables iris tracking
+mp_drawing = mp.solutions.drawing_utils
 
-# Load face and eye detectors
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+capture = cv2.VideoCapture(0)
 
 while True:
-    ret, frame = cap.read()  # Read frame from webcam
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)  # Detect faces
+    ret, frame = capture.read()
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(frame_rgb)
 
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 5)  # Draw face box
-        roi_gray = gray[y:y + w, x:x + w]
-        roi_color = frame[y:y + h, x:x + w]
-        eyes = eye_cascade.detectMultiScale(roi_gray, 1.3, 5)  # Detect eyes in face
-        for (ex, ey, ew, eh) in eyes:
-            cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 5)  # Draw eye boxes
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
+            # Draw all landmarks
+            mp_drawing.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_TESSELATION)
 
-    cv2.imshow('frame', frame)  # Show result
+            # Get right and left iris center (landmarks 468 and 473)
+            h, w, _ = frame.shape
+            for idx in [468, 473]:  # right and left iris center
+                x = int(face_landmarks.landmark[idx].x * w)
+                y = int(face_landmarks.landmark[idx].y * h)
+                cv2.circle(frame, (x, y), 5, (0, 255, 255), -1)  # Draw iris center
 
-    if cv2.waitKey(1) == ord('q'):  # Button to release camera
+    cv2.imshow("MediaPipe Iris Tracking", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 cap.release()
-cv2.destroyAllWindows()  #End program by closing screen capture window
+cv2.destroyAllWindows()
