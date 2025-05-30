@@ -1,11 +1,17 @@
 import cv2
 import mediapipe as mp
+import turtle
+import random
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)  # enables iris tracking
 mp_drawing = mp.solutions.drawing_utils
 
 capture = cv2.VideoCapture(0)
+
+sc = turtle.Screen()
+sc.setup(width=1.0, height=1.0)
+sc.bgcolor("white")
 
 while True:
     ret, frame = capture.read()
@@ -25,8 +31,10 @@ while True:
                 cv2.circle(frame, (x, y), 5, (0, 255, 255), -1)  # Draw iris center
 
     cv2.imshow("MediaPipe Iris Tracking", frame)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-cap.release()
+capture.release()
 cv2.destroyAllWindows()
+
