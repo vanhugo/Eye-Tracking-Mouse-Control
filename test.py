@@ -2,6 +2,21 @@ import cv2
 import mediapipe as mp
 import turtle
 import random
+import time
+
+# Setup Turtle Screen
+sc = turtle.Screen()
+sc.setup(width=1.0, height=1.0)
+sc.bgcolor("white")
+
+# Text Display for 5 seconds
+pen = turtle.Turtle()
+pen.hideturtle()
+pen.penup()
+pen.goto(0, 0)
+pen.write("Calibration Window - Center your face to the camera and stare at the dot", align="center", font=("Arial", 16, "normal"))
+time.sleep(5.0)
+sc.clear()
 
 # Setup MediaPipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
@@ -9,15 +24,10 @@ face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)  # ena
 mp_drawing = mp.solutions.drawing_utils
 
 # Setup Webcam
-capture = cv2.VideoCapture(1)
+capture = cv2.VideoCapture(0)
 if not capture.isOpened():
     print("Error: Cannot open webcam")
     exit()
-
-# Setup Turtle Screen
-sc = turtle.Screen()
-sc.setup(width=1.0, height=1.0)
-sc.bgcolor("white")
 
 # Main loop for processing video frames
 while True:
