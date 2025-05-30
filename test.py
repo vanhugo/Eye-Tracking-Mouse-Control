@@ -3,20 +3,23 @@ import mediapipe as mp
 import turtle
 import random
 
+# Setup MediaPipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)  # enables iris tracking
 mp_drawing = mp.solutions.drawing_utils
 
-capture = cv2.VideoCapture(0)
-
+# Setup Webcam
+capture = cv2.VideoCapture(1)
 if not capture.isOpened():
     print("Error: Cannot open webcam")
     exit()
-    
+
+# Setup Turtle Screen
 sc = turtle.Screen()
 sc.setup(width=1.0, height=1.0)
 sc.bgcolor("white")
 
+# Main loop for processing video frames
 while True:
     ret, frame = capture.read()
     if not ret:
@@ -25,6 +28,7 @@ while True:
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(frame_rgb)
 
+    # If face landmarks are found
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             # Draw all landmarks
@@ -39,9 +43,9 @@ while True:
 
     cv2.imshow("MediaPipe Iris Tracking", frame)
 
+    # Exit loop when 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
 capture.release()
 cv2.destroyAllWindows()
-
