@@ -9,12 +9,19 @@ mp_drawing = mp.solutions.drawing_utils
 
 capture = cv2.VideoCapture(0)
 
+if not capture.isOpened():
+    print("Error: Cannot open webcam")
+    exit()
+    
 sc = turtle.Screen()
 sc.setup(width=1.0, height=1.0)
 sc.bgcolor("white")
 
 while True:
     ret, frame = capture.read()
+    if not ret:
+        print("Failed to grab frame")
+        break
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(frame_rgb)
 
