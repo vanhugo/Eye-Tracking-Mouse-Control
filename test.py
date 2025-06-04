@@ -18,19 +18,41 @@ pen.write("Calibration Window - Center your face to the camera and stare at the 
 time.sleep(5.0)
 sc.clear()
 
+# draw red dot
+dot = turtle.Turtle()
+dot.penup()
+dot.shape("circle")
+dot.color("red")
+dot.shapesize(2)
+
+# Define calibration points (in screen coordinates)
+calibration_points = [
+    (-700, 400), (0, 400), (700, 400),
+    (-700, 0),   (0, 0),   (700, 0),
+    (-700, -400), (0, -400), (700, -400)
+]
+
+# Store calibration data
+calibration_data = []
+
 # Setup MediaPipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)  # enables iris tracking
 mp_drawing = mp.solutions.drawing_utils
 
 # Setup Webcam
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 if not capture.isOpened():
     print("Error: Cannot open webcam")
     exit()
 
 # Main loop for processing video frames
-while True:
+for point in calibration_points:
+    dot.goto(point)
+    dot.stamp()
+    print(f"Look at: {point}")
+    time.sleep(2)
+
     ret, frame = capture.read()
     if not ret:
         print("Failed to grab frame")
@@ -41,17 +63,21 @@ while True:
     # If face landmarks are found
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
-            # Draw all landmarks
-            mp_drawing.draw_landmarks(frame, face_landmarks, mp_face_mesh.FACEMESH_TESSELATION)
-
-            # Get right and left iris center (landmarks 468 and 473)
             h, w, _ = frame.shape
-            for idx in [468, 473]:  # right and left iris center
-                x = int(face_landmarks.landmark[idx].x * w)
-                y = int(face_landmarks.landmark[idx].y * h)
-                cv2.circle(frame, (x, y), 5, (0, 255, 255), -1)  # Draw iris center
+            # Right iris center (landmark 468)
+            iris = face_landmarks.landmark[468]
+            iris_x = int(iris.x * w)
+            iris_y = int(iris.y * h)
 
-    cv2.imshow("MediaPipe Iris Tracking", frame)
+            calibration_data.append({
+                "screen": point,
+                "iris": (iris_x, iris_y)
+            })
+            print(f"Captured iris at: {(iris_x, iris_y)} for screen point {point}")
+            
+    print("Calibration complete. Data:")
+    for data in calibration_data:
+        print(data)
 
     # Exit loop when 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -59,3 +85,4 @@ while True:
 
 capture.release()
 cv2.destroyAllWindows()
+turtle.bye()
