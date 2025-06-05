@@ -1,8 +1,12 @@
 import cv2
 import mediapipe as mp
 import turtle
+import pyautogui
 import random
 import time
+
+# get dimensions of user's screen
+w, h = pyautogui.size()
 
 # Setup Turtle Screen
 sc = turtle.Screen()
@@ -14,8 +18,8 @@ pen = turtle.Turtle()
 pen.hideturtle()
 pen.penup()
 pen.goto(0, 0)
-pen.write("Calibration Window - Center your face to the camera and stare at the dot", align="center", font=("Arial", 16, "normal"))
-time.sleep(5.0)
+pen.write("Calibration Window - Enter full screen, center your face to the camera and stare at the dot", align="center", font=("Arial", 16, "normal"))
+time.sleep(7.0)
 sc.clear()
 
 # draw red dot
@@ -25,11 +29,11 @@ dot.shape("circle")
 dot.color("red")
 dot.shapesize(2)
 
-# Define calibration points (in screen coordinates)
+# Define calibration points using user's screen size and adding a margin
 calibration_points = [
-    (-700, 400), (0, 400), (700, 400),
-    (-700, 0),   (0, 0),   (700, 0),
-    (-700, -400), (0, -400), (700, -400)
+    (-w/2+20, h/2-25), (0, h/2-25), (w/2-20, h/2-25),
+    (-w/2+20, 0),   (0, 0),   (w/2-20, 0),
+    (-w/2+20, -h/2+25), (0, -h/2+25), (w/2-20, -h/2+25)
 ]
 
 # Store calibration data
