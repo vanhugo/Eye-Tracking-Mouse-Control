@@ -95,6 +95,12 @@ turtle.bye()
 print("Starting real-time eye tracking. Press 'q' in the webcam window to quit.")
 current_x, current_y = pyautogui.position()
 
+# dwell-to-click setup
+dwell_start_time = None
+dwell_threshold = 1.5  # seconds
+click_position = None
+tolerance = 50  # pixels
+
 while True:
     ret, frame = capture.read()
     if not ret:
@@ -121,6 +127,14 @@ while True:
         current_y = (1 - alpha) * current_y + alpha * screen_y
         pyautogui.moveTo(current_x, current_y, _pause=False)
 
+        # Dwell-to-click logic
+        if click_position is None or np.linalg.norm(np.array([current_x, current_y]) - np.array(click_position)) > tolerance:
+            click_position = (current_x, current_y)
+            dwell_start_time = time.time()
+        else:
+            if time.time() - dwell_start_time > dwell_threshold:
+                pyautogui.click()
+                dwell_start_time = time.time() + 1  # avoid repeat clicking
 
     # Show webcam feed
     cv2.imshow("Eye Tracking - Press 'q' to Quit", frame)
