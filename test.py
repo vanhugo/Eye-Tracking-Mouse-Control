@@ -101,6 +101,8 @@ dwell_threshold = 1.5  # seconds
 click_position = None
 tolerance = 50  # pixels
 
+previous_iris = None
+
 while True:
     ret, frame = capture.read()
     if not ret:
@@ -121,10 +123,22 @@ while True:
         screen_x = predicted[0] + screen_w / 2
         screen_y = -predicted[1] + screen_h / 2
 
+        # Adjust sensitivity based on iris movement
+        if previous_iris is not None:
+            movement = np.linalg.norm(np.array([iris_x, iris_y]) - np.array(previous_iris))
+            if movement < 5:
+                alpha = 0.02  # lower alpha = slower, more precise
+            else:
+                alpha = 0.08  # default speed
+        else:
+            alpha = 0.08
+
+        previous_iris = (iris_x, iris_y)
+
         # Smooth interpolation toward predicted point
-        alpha = 0.08  # smaller = smoother
         current_x = (1 - alpha) * current_x + alpha * screen_x
         current_y = (1 - alpha) * current_y + alpha * screen_y
+
         pyautogui.moveTo(current_x, current_y, _pause=False)
 
         # Dwell-to-click logic
