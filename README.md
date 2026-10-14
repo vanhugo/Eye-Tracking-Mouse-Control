@@ -8,10 +8,10 @@ We built a hands-free mouse control system with computer vision. It uses a webca
 
 **Features**
 
-Eye Tracking: Uses facial and iris landmarks to estimate eye movements.
-Mouse Control: Maps eye movements to on-screen cursor movements.
-Dwell-to-Click: Automatically clicks when the cursor stays in one position for 1.5 seconds.
-Calibration: Guides users through a calibration process to help map eye movements to screen coordinates.
+Eye Tracking: Uses facial and iris landmarks to estimate eye movements.  
+Mouse Control: Maps eye movements to on-screen cursor movements.  
+Dwell-to-Click: Automatically clicks when the cursor stays in one position for 1.5 seconds.  
+Calibration: Guides users through a calibration process to help map eye movements to screen coordinates.  
 Webcam-Based: Uses a webcam to track eye movements without specialized eye-tracking hardware.
 
 **How to Use**
